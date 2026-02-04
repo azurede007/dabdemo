@@ -7,17 +7,32 @@
 
 from pyspark.sql.functions import *
 
+dbutils.widgets.text("logpath","/Volumes/inceptez_catalog/inputdb/serverlogs/accesslogs/")
+
+
+logpath = dbutils.widgets.get("logpath")
+catalog = dbutils.widgets.get("inceptez_catalog")
+schema = dbutils.widgets.get("inceptez_schema")
+
+
 # Read raw log file
-logpath= "/Volumes/inceptez_catalog/inputdb/serverlogs/accesslogs/"
+#logpath= "/Volumes/inceptez_catalog/inputdb/serverlogs/accesslogs/"
 raw_df = spark.read.text(logpath)
 
+# filter out empty rows
+filtered_df = raw_df.filter(col("value") != "")
+
 # Add metadata
-bronze_df = raw_df.withColumn("ingestion_time", current_timestamp())
+bronze_df = filtered_df.withColumn("ingestion_time", current_timestamp())
+
+display(bronze_df)
 
 # Write to Bronze Delta
 bronze_df.write.format("delta") \
-    .mode("append") \
-    .saveAsTable("workspace.bronze.logs_bronze_raw")
+    .mode("overwrite") \
+    .saveAsTable(f"{catalog}.{schema}.logs_bronze_raw")
+
+print("Raw Data written to Bronze Layer")
 
 
 
@@ -69,7 +84,9 @@ silver_clean_df = silver_df.filter(
 ip_data = [
     ("192.168.1.10", "India", "Chennai"),
     ("192.168.1.20", "India", "Bangalore"),
-    ("192.168.1.30", "India", "Hyderabad")
+    ("192.168.1.30", "India", "Hyderabad"),
+    ("192.168.1.40", "India", "Mumbai"),
+    ("192.168.1.50", "India", "New Delhi")
 ]
 
 ip_schema = ["ip_address", "country", "city"]
@@ -78,7 +95,7 @@ ip_df = spark.createDataFrame(ip_data, ip_schema)
 
 ip_df.write.format("delta") \
     .mode("overwrite") \
-    .saveAsTable("ip_lookup")
+    .saveAsTable("inceptez_catalog.inputdb.ip_lookup")
 
 
 # COMMAND ----------
@@ -89,9 +106,11 @@ ip_df.write.format("delta") \
 # COMMAND ----------
 
 user_data = [
-    ("user101", "Admin"),
-    ("user102", "Customer"),
-    ("user103", "Support")
+    ("U101", "Admin"),
+    ("U102", "Customer"),
+    ("U103", "Support"),
+    ("U104", "Customer"),
+    ("U105", "Customer")
 ]
 
 user_schema = ["user_id", "user_role"]
@@ -100,7 +119,7 @@ user_df = spark.createDataFrame(user_data, user_schema)
 
 user_df.write.format("delta") \
     .mode("overwrite") \
-    .saveAsTable("user_lookup")
+    .saveAsTable("inceptez_catalog.inputdb.user_lookup")
 
 
 # COMMAND ----------
@@ -110,8 +129,8 @@ user_df.write.format("delta") \
 
 # COMMAND ----------
 
-ip_df = spark.read.table("ip_lookup")
-user_df = spark.read.table("user_lookup")
+ip_df = spark.read.table("inceptez_catalog.inputdb.ip_lookup")
+user_df = spark.read.table("inceptez_catalog.inputdb.user_lookup")
 
 enriched_df = silver_clean_df \
     .join(ip_df, "ip_address", "left") \
@@ -127,7 +146,7 @@ enriched_df = silver_clean_df \
 
 enriched_df.write.format("delta") \
     .mode("overwrite") \
-    .saveAsTable("logs_silver_enriched")
+    .saveAsTable("inceptez_catalog.outputdb.logs_silver_enriched")
 
 
 # COMMAND ----------
@@ -169,15 +188,15 @@ user_activity_df = enriched_df.groupBy(
 
 failed_login_df.write.format("delta") \
     .mode("overwrite") \
-    .saveAsTable("logs_gold_failed_login")
+    .saveAsTable("inceptez_catalog.inputdb.logs_gold_failed_login")
 
 error_trend_df.write.format("delta") \
     .mode("overwrite") \
-    .saveAsTable("logs_gold_error_trend")
+    .saveAsTable("inceptez_catalog.inputdb.logs_gold_error_trend")
 
 user_activity_df.write.format("delta") \
     .mode("overwrite") \
-    .saveAsTable("logs_gold_user_activity")
+    .saveAsTable("inceptez_catalog.inputdb.logs_gold_user_activity")
 
 
 # COMMAND ----------
@@ -194,4 +213,4 @@ quality_df = enriched_df.filter(
 
 quality_df.write.format("delta") \
     .mode("append") \
-    .saveAsTable("logs_bad_records")
+    .saveAsTable("inceptez_catalog.inputdb.logs_bad_records")

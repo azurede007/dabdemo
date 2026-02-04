@@ -1,0 +1,15 @@
+resources:
+  pipelines:
+    pipeline_dlt_loganalysis:
+      name: dlt-loganalysis
+      libraries:
+        - glob:
+            include: ../src/dlt-loganalysis/transformations/**
+      schema: outputdb
+      continuous: false
+      development: false
+      photon: true
+      channel: CURRENT
+      catalog: inceptez_catalog
+      serverless: true
+      root_path: ../src/dlt-loganalysis
