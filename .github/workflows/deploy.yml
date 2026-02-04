@@ -19,7 +19,8 @@ jobs:
       - name: Install Databricks CLI
         uses: databricks/setup-cli@main
 
-      - name: Deploy Bundle to Prod
+      - name: Deploy Bundle to dev
+        working-directory: ./dabloganalysis
         run: databricks bundle deploy -t dev
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
