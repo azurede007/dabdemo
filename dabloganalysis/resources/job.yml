@@ -1,0 +1,25 @@
+resources:
+  jobs:
+    job_loganalysis:
+      name: job-loganalysis
+      schedule:
+        quartz_cron_expression: 0 4/5 * * * ?
+        timezone_id: Asia/Calcutta
+        pause_status: PAUSED
+      tasks:
+        - task_key: task01-loganalysis
+          notebook_task:
+            notebook_path: /Workspace/DAB/dabdemo/logdataanalysis
+            base_parameters:
+              logpath: ${var.logpath}
+              inceptez_catalog: ${var.catalog}
+              inceptez_schema: ${var.schema}
+            source: WORKSPACE
+          environment_key: Default
+      queue:
+        enabled: true
+      environments:
+        - environment_key: Default
+          spec:
+            environment_version: "4"
+      performance_target: PERFORMANCE_OPTIMIZED

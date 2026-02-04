@@ -1,0 +1,47 @@
+# This is a Databricks asset bundle definition for dabloganalysis.
+# See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
+bundle:
+  name: dabloganalysis
+  uuid: f98338b7-ddc3-49d7-825b-253195039c7e
+
+include:
+  - resources/*.yml
+  - resources/*/*.yml
+
+# Variable declarations. These variables are assigned in the dev/prod targets below.
+variables:
+  logpath:
+    default: ""
+    description: "log data path"
+  catalog:
+    description: The catalog to use
+  schema:
+    description: The schema to use
+
+targets:
+  dev:
+    # The default target uses 'mode: development' to create a development copy.
+    # - Deployed resources get prefixed with '[dev my_user_name]'
+    # - Any job schedules and triggers are paused by default.
+    # See also https://docs.databricks.com/dev-tools/bundles/deployment-modes.html.
+    mode: development
+    default: true
+    workspace:
+      host: https://dbc-72009115-3ebe.cloud.databricks.com/
+    variables:
+      catalog: inceptez_catalog
+      schema: outputdb
+      logpath: "/Volumes/inceptez_catalog/inputdb/serverlogs/accesslogs/"
+  prod:
+    mode: production
+    workspace:
+      host: http://127.0.0.1:7073
+      # We explicitly deploy to /Workspace/Users/azurede25@gmail.com to make sure we only have a single copy.
+      root_path: /Workspace/Users/azurede25@gmail.com/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      catalog: inceptez_catalog_prod
+      schema: prod_outputdb
+      logpath: "/Volumes/inceptez_catalog/inputdb/prod_serverlogs/accesslogs/"
+    permissions:
+      - user_name: azurede25@gmail.com
+        level: CAN_MANAGE
