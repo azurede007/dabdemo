@@ -23,6 +23,19 @@ jobs:
 
       - name: Install Databricks CLI
         uses: databricks/setup-cli@main
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Dependencies
+        working-directory: ./dabloganalysis
+        run: pip install pytest pyspark
+      
+      - name: Run Unit Tests
+        working-directory: ./dabloganalysis
+        run: pytest tests/
 
       - name: Validate Bundle
         working-directory: ./dabloganalysis
