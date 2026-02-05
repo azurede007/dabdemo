@@ -198,6 +198,8 @@ user_activity_df.write.format("delta") \
     .mode("overwrite") \
     .saveAsTable("inceptez_catalog.inputdb.logs_gold_user_activity")
 
+print("Data written to tables")
+
 
 # COMMAND ----------
 
