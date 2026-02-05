@@ -5,13 +5,9 @@ on:
     types: [closed]
     branches:
       - main
-
 jobs:
-  deploy:
-    # Only run if the PR was actually merged, not just closed
-    if: github.event.pull_request.merged == true
+  validate:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -19,14 +15,8 @@ jobs:
       - name: Install Databricks CLI
         uses: databricks/setup-cli@main
 
-      - name: Validate Bundle to dev
-        working-directory: ./dabloganalysis
+      - name: Validate Bundle
         run: databricks bundle validate
-
-      - name: deploy Bundle to dev
-        working-directory: ./dabloganalysis
-        run: databricks bundle deploy -t dev
-         
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
