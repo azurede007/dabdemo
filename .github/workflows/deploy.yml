@@ -16,6 +16,7 @@ jobs:
         uses: databricks/setup-cli@main
 
       - name: Validate Bundle
+        working-directory: ./dabloganalysis
         run: databricks bundle validate
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
