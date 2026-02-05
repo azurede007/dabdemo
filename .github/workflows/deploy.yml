@@ -5,9 +5,18 @@ on:
     types: [closed]
     branches:
       - main
+
 jobs:
-  validate:
+  validate-and-deploy:
+    # Only run if the PR was actually merged, not just closed without merging
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
+    
+    # Setting env at the job level covers ALL steps below
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -21,7 +30,5 @@ jobs:
 
       - name: Deploy Bundle
         working-directory: ./dabloganalysis
+        # -t dev matches your bundle target
         run: databricks bundle deploy -t dev
-        env:
-          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
