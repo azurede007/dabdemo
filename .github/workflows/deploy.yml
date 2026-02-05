@@ -15,9 +15,9 @@ jobs:
       - name: Install Databricks CLI
         uses: databricks/setup-cli@main
 
-      - name: Validate Bundle
+      - name: Deploy Bundle
         working-directory: ./dabloganalysis
-        run: databricks bundle validate
+        run: databricks bundle deploy -t dev
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
