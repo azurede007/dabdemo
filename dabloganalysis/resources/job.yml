@@ -9,7 +9,7 @@ resources:
       tasks:
         - task_key: task01-loganalysis
           notebook_task:
-            notebook_path: /Workspace/DAB/dabdemo/logdataanalysis
+            notebook_path: ../src/logdataanalysis.py
             base_parameters:
               logpath: ${var.logpath}
               inceptez_catalog: ${var.catalog}
