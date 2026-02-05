@@ -19,10 +19,6 @@ jobs:
       - name: Install Databricks CLI
         uses: databricks/setup-cli@main
 
-      - name: Destroy Bundle to dev
-        working-directory: ./dabloganalysis
-        run: databricks bundle destroy -t dev --auto-approve
-
       - name: Validate Bundle to dev
         working-directory: ./dabloganalysis
         run: databricks bundle validate
